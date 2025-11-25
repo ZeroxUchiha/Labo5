@@ -75,7 +75,13 @@ public class PerspectiveController implements MouseListener, MouseMotionListener
     
     @Override
     public void mouseReleased(MouseEvent e) {
+        // Glisser-déposer : appliquer la translation finale
+        int deltaX = e.getX() - lastX;
+        int deltaY = e.getY() - lastY;
         
+        if (deltaX != 0 || deltaY != 0) {
+            handleTranslate(deltaX, deltaY);
+        }
     }
     
     @Override
@@ -91,13 +97,8 @@ public class PerspectiveController implements MouseListener, MouseMotionListener
     // Implémentation MouseMotionListener
     @Override
     public void mouseDragged(MouseEvent e) {
-        int deltaX = e.getX() - lastX;
-        int deltaY = e.getY() - lastY;
-        
-        handleTranslate(deltaX, deltaY);
-        
-        lastX = e.getX();
-        lastY = e.getY();
+        // Ne rien faire pendant le drag pour mode glisser-déposer
+        // (optionnel: on pourrait afficher un aperçu visuel ici)
     }
     
     @Override

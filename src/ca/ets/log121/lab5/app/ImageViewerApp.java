@@ -95,12 +95,18 @@ public class ImageViewerApp {
     }
 
 
+    // Références pour activer/désactiver les menus
+    private JMenuItem miSave;
+    private JMenuItem miLoad;
+    private JMenu editMenu;
+    private JMenu clipboardMenu;
+
     public void createMenuBar(){
       menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("Fichier");
-        JMenuItem miOpen = new JMenuItem("Ouvrir image");
-        JMenuItem miSave = new JMenuItem("Sauvegarder");
-        JMenuItem miLoad = new JMenuItem("Charger");
+        JMenuItem miOpen = new JMenuItem("Charger Image");
+        miSave = new JMenuItem("Sauvegarder Perspective");
+        miLoad = new JMenuItem("Charger Perspective");
         JMenuItem miExit = new JMenuItem("Quitter");
         miOpen.addActionListener(e -> openImage());
         miSave.addActionListener(e -> saveState());
@@ -113,17 +119,22 @@ public class ImageViewerApp {
         fileMenu.addSeparator();
         fileMenu.add(miExit);
 
+        // Désactiver au départ (pas d'image chargée)
+        miSave.setEnabled(false);
+        miLoad.setEnabled(false);
+
         // Menu Édition avec Undo/Redo
-        JMenu editMenu = new JMenu("Édition");
+        editMenu = new JMenu("Édition");
         JMenuItem miUndo = new JMenuItem("Annuler (Undo)");
         JMenuItem miRedo = new JMenuItem("Refaire (Redo)");
         miUndo.addActionListener(e -> undo());
         miRedo.addActionListener(e -> redo());
         editMenu.add(miUndo);
         editMenu.add(miRedo);
+        editMenu.setEnabled(false); // Désactiver au départ
 
         // Menu Presse-Papier avec stratégies
-        JMenu clipboardMenu = new JMenu("Presse-Papier");
+        clipboardMenu = new JMenu("Presse-Papier");
         
         JMenu copyMenu = new JMenu("Copier");
         JMenuItem miCopyZoom = new JMenuItem("Copier Zoom");
@@ -141,6 +152,7 @@ public class ImageViewerApp {
         
         clipboardMenu.add(copyMenu);
         clipboardMenu.add(miPaste);
+        clipboardMenu.setEnabled(false); // Désactiver au départ
 
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
@@ -160,6 +172,12 @@ public class ImageViewerApp {
             LoadImageCommand command = new LoadImageCommand(imageModel, imagePath);
             commandManager.executeCommand(command);
             // Les vues seront automatiquement mises à jour via le patron Observer ( vous pouvez regarder le diagramme de classes sur lucidchart )
+            
+            // Activer les menus maintenant qu'une image est chargée
+            miSave.setEnabled(true);
+            miLoad.setEnabled(true);
+            editMenu.setEnabled(true);
+            clipboardMenu.setEnabled(true);
         }
 
     }
