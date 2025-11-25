@@ -86,6 +86,10 @@ public class ImageViewerApp {
         controllers.add(controller1);
         controllers.add(controller2);
         
+        // Ajouter menus contextuels (clic droit) pour copier/coller les perspectives car également demandé dans l'énoncé
+        setupPerspectiveContextMenu(perspView1, persp1);
+        setupPerspectiveContextMenu(perspView2, persp2);
+        
         centerPanel.add(perspView1.getPanel());
         centerPanel.add(perspView2.getPanel());
         
@@ -95,12 +99,18 @@ public class ImageViewerApp {
     }
 
 
+    // Références pour activer/désactiver les menus
+    private JMenuItem miSave;
+    private JMenuItem miLoad;
+    private JMenu editMenu;
+    private JMenu clipboardMenu;
+
     public void createMenuBar(){
       menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("Fichier");
-        JMenuItem miOpen = new JMenuItem("Ouvrir image");
-        JMenuItem miSave = new JMenuItem("Sauvegarder");
-        JMenuItem miLoad = new JMenuItem("Charger");
+        JMenuItem miOpen = new JMenuItem("Charger Image");
+        miSave = new JMenuItem("Sauvegarder Perspective");
+        miLoad = new JMenuItem("Charger Perspective");
         JMenuItem miExit = new JMenuItem("Quitter");
         miOpen.addActionListener(e -> openImage());
         miSave.addActionListener(e -> saveState());
@@ -113,17 +123,22 @@ public class ImageViewerApp {
         fileMenu.addSeparator();
         fileMenu.add(miExit);
 
+        // Désactiver au départ (pas d'image chargée)
+        miSave.setEnabled(false);
+        miLoad.setEnabled(false);
+
         // Menu Édition avec Undo/Redo
-        JMenu editMenu = new JMenu("Édition");
+        editMenu = new JMenu("Édition");
         JMenuItem miUndo = new JMenuItem("Annuler (Undo)");
         JMenuItem miRedo = new JMenuItem("Refaire (Redo)");
         miUndo.addActionListener(e -> undo());
         miRedo.addActionListener(e -> redo());
         editMenu.add(miUndo);
         editMenu.add(miRedo);
+        editMenu.setEnabled(false); // Désactiver au départ
 
         // Menu Presse-Papier avec stratégies
-        JMenu clipboardMenu = new JMenu("Presse-Papier");
+        clipboardMenu = new JMenu("Presse-Papier");
         
         JMenu copyMenu = new JMenu("Copier");
         JMenuItem miCopyZoom = new JMenuItem("Copier Zoom");
@@ -141,6 +156,7 @@ public class ImageViewerApp {
         
         clipboardMenu.add(copyMenu);
         clipboardMenu.add(miPaste);
+        clipboardMenu.setEnabled(false); // Désactiver au départ
 
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
@@ -160,6 +176,12 @@ public class ImageViewerApp {
             LoadImageCommand command = new LoadImageCommand(imageModel, imagePath);
             commandManager.executeCommand(command);
             // Les vues seront automatiquement mises à jour via le patron Observer ( vous pouvez regarder le diagramme de classes sur lucidchart )
+            
+            // Activer les menus maintenant qu'une image est chargée parce que ici j'ai vu dans la vidéo démonstrative que au début les autres menus étaient désactivés ce qui est logique
+            miSave.setEnabled(true);
+            miLoad.setEnabled(true);
+            editMenu.setEnabled(true);
+            clipboardMenu.setEnabled(true);
         }
 
     }
@@ -230,6 +252,9 @@ public class ImageViewerApp {
                     PerspectiveModel persp = perspectives.get(i);
                     PerspectiveView perspView = new PerspectiveView(imageModel, persp);
                     PerspectiveController controller = new PerspectiveController(persp, perspView);
+                    
+                    // Ajouter menu contextuel
+                    setupPerspectiveContextMenu(perspView, persp);
                     
                     perspectiveViews.add(perspView);
                     controllers.add(controller);
@@ -355,6 +380,31 @@ public class ImageViewerApp {
                 "Collage", 
                 javax.swing.JOptionPane.INFORMATION_MESSAGE);
         }
+    }
+
+    /**
+     * Configure le menu contextuel (clic droit) pour une perspective.
+     */
+    private void setupPerspectiveContextMenu(PerspectiveView view, PerspectiveModel model) {
+        view.setupContextMenu(
+            // Action pour copier
+            () -> {
+                ca.ets.log121.lab5.pattern.strategy.CopyStrategy strategy = 
+                    new ca.ets.log121.lab5.pattern.strategy.CopyAllStrategy();
+                ca.ets.log121.lab5.pattern.mediator.CopyPasteMediator.getInstance().copy(model, strategy);
+            },
+            // Action pour coller
+            () -> {
+                if (ca.ets.log121.lab5.pattern.mediator.CopyPasteMediator.getInstance().hasCopiedData()) {
+                    ca.ets.log121.lab5.pattern.mediator.CopyPasteMediator.getInstance().paste(model);
+                } else {
+                    javax.swing.JOptionPane.showMessageDialog(mainFrame, 
+                        "Aucune donnée à coller!", 
+                        "Erreur", 
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        );
     }
 
     /**
