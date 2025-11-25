@@ -25,18 +25,19 @@ public class ZoomCommand implements Command {
     
     @Override
     public void execute() {
-        // Sauvegarder l'état précédent
-        prevScale = perspective.getScale();
         
         // Appliquer le nouveau zoom
         perspective.setScale(newScale);
     }
-    
+    public void setPrevScale(double prevScale) {
+        this.prevScale = prevScale;
+    }
     @Override
     public void undo() {
         // Restaurer l'état précédent
         perspective.setScale(prevScale);
     }
+
     
     /**
      * Retourne la description de la commande.
