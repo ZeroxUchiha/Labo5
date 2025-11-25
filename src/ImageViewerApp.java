@@ -12,6 +12,7 @@ public class ImageViewerApp {
     private List<ThumbnailView> thumbnailViews;
     private List<PerspectiveView> perspectiveViews;
     private List<PerspectiveController> controllers;
+    private JPanel perspectivePanel;
 
 
     public ImageViewerApp(){
@@ -44,6 +45,10 @@ public class ImageViewerApp {
         JPanel center = new JPanel();
         center.setBackground(Color.DARK_GRAY);
         mainFrame.add(center, BorderLayout.CENTER);
+
+        perspectivePanel = new JPanel();
+        perspectivePanel.setLayout(new FlowLayout());
+        center.add(perspectivePanel, BorderLayout.CENTER);
 
         ThumbnailView thumbnail = new ThumbnailView(imageModel);
         thumbnailViews.add(thumbnail);
@@ -105,9 +110,16 @@ public class ImageViewerApp {
 
     public void loadState(){}
 
+
     public void createNewPerspective(){
+          PerspectiveModel model = new PerspectiveModel(imageModel);
+          perspectives.add(model);
 
-
+          PerspectiveView view = new PerspectiveView(model);
+        perspectiveViews.add(view);
+        perspectivePanel.add(view);   // Add to the dedicated panel
+        perspectivePanel.revalidate();
+        perspectivePanel.repaint();
     }
 
     public void exit(){}
