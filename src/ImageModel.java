@@ -8,6 +8,26 @@ import java.util.ArrayList;
 
 
 public class ImageModel extends Observable implements Serializable {
-    
+    private transient  BufferedImage image;
+    private String imagePath;
+
+    public ImageModel(){
+        this.image = null;
+        this.imagePath = null;
+    }
+
+    /**
+     * Charge une image à partir d'un fichier.
+     */
+    public void loadImage(String path) {
+        try {
+            this.image = ImageIO.read(new File(path));
+            this.imagePath = path;
+
+            notifyObservers();   // Mise à jour des thumbnails
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
