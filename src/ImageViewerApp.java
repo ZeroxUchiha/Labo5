@@ -106,6 +106,20 @@ public class ImageViewerApp {
     public void loadState(){}
 
     public void createNewPerspective(){
+        PerspectiveModel model = new PerspectiveModel();
+        perspectives.add(model);
+
+        PerspectiveView view = new PerspectiveView(model);
+        perspectiveViews.add(view);
+
+        PerspectiveController controller = new PerspectiveController(model, view);
+        controllers.add(controller);
+
+        // Ajouter visuellement à la fenêtre
+        mainFrame.add(view);
+
+        mainFrame.revalidate();
+        mainFrame.repaint();
 
     }
 

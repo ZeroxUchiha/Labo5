@@ -3,7 +3,9 @@ import java.util.ArrayList;
 public class Observable {
     private ArrayList<Observer> observerList;
 
-
+    public Observable() {
+        observerList = new ArrayList<>();
+    }
     public void notifyObservers(){
 
     }
