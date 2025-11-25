@@ -17,22 +17,25 @@ public class TranslateCommand implements Command {
     /**
      * Constructeur de la commande.
      * @param perspective Le modèle de perspective
-     * @param newX La nouvelle position X
-     * @param newY La nouvelle position Y
      */
-    public TranslateCommand(PerspectiveModel perspective, int newX, int newY) {
+    public TranslateCommand(PerspectiveModel perspective) {
         this.perspective = perspective;
-        this.newX = newX;
-        this.newY = newY;
-        this.description = "Translation: (" + newX + ", " + newY + ")";
+        this.description = "Translation";
+    }
+
+    public void setPrevPosition(int x, int y) {
+        this.prevX = x;
+        this.prevY = y;
+    }
+
+
+    public void setNewPosition(int x, int y) {
+        this.newX = x;
+        this.newY = y;
     }
     
     @Override
     public void execute() {
-        // Sauvegarder l'état précédent
-        prevX = perspective.getPositionX();
-        prevY = perspective.getPositionY();
-        
         // Appliquer la nouvelle position
         perspective.setPosition(newX, newY);
     }

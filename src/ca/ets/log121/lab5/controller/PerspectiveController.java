@@ -11,10 +11,16 @@ import ca.ets.log121.lab5.pattern.command.TranslateCommand;
  * Contrôleur pour gérer les interactions souris sur une PerspectiveView.
  */
 public class PerspectiveController implements MouseListener, MouseMotionListener, MouseWheelListener {
-    
+    private double lastScrollDirection = 0;
     private PerspectiveModel model;
     private CommandManager commandManager;
-    
+    private javax.swing.Timer zoomEndTimer;
+    private TranslateCommand activeTranslateCommand;
+
+    private boolean zooming = false;
+    private double zoom;
+    private double lastZoomBeforeScroll = 1.0;
+
     // Pour le drag
     private int lastX;
     private int lastY;
@@ -22,6 +28,7 @@ public class PerspectiveController implements MouseListener, MouseMotionListener
     public PerspectiveController(PerspectiveModel model, PerspectiveView view) {
         this.model = model;
         this.commandManager = CommandManager.getInstance();
+        zoom = 1;
         
         // Attacher les listeners à la vue
         view.addMouseListener(this);
@@ -33,12 +40,11 @@ public class PerspectiveController implements MouseListener, MouseMotionListener
      * Gère le zoom avec un facteur donné.
      */
     public void handleZoom(double factor) {
-        double newScale = model.getScale() * factor;
+        zoom = model.getScale() * factor;
         // Limiter le zoom entre 0.1 et 10 || À voir la valeur à prendre 
-        newScale = Math.max(0.1, Math.min(10.0, newScale));
-        
-        ZoomCommand command = new ZoomCommand(model, newScale);
-        commandManager.executeCommand(command);
+        zoom = Math.max(0.1, Math.min(10.0, zoom));
+        model.setScale(zoom);
+
     }
     
     /**
@@ -48,7 +54,7 @@ public class PerspectiveController implements MouseListener, MouseMotionListener
         int newX = model.getPositionX() + deltaX;
         int newY = model.getPositionY() + deltaY;
         
-        TranslateCommand command = new TranslateCommand(model, newX, newY);
+        TranslateCommand command = new TranslateCommand(model);
         commandManager.executeCommand(command);
     }
     
@@ -56,55 +62,105 @@ public class PerspectiveController implements MouseListener, MouseMotionListener
      * Gère la molette de la souris pour le zoom.
      */
     public void handleMouseWheel(MouseWheelEvent e) {
-        int notches = e.getWheelRotation();
-        double factor = notches < 0 ? 1.1 : 0.9;
+        if(!zooming){
+            zooming = true;
+            lastZoomBeforeScroll = zoom;
+        }
+        double precise = e.getPreciseWheelRotation();
+        double direction = Math.signum(precise);
+
+        // Si le touchpad inverse brièvement la direction → on ignore
+        if (direction != 0 && direction != lastScrollDirection) {
+            lastScrollDirection = direction;
+            return; // ignore le rebond
+        }
+
+        lastScrollDirection = direction;
+
+        // facteur de zoom très smoot
+        double factor = 1.0 - (precise * 0.05);
+
+        scheduleZoomEnd();
         handleZoom(factor);
+    }
+
+    private void scheduleZoomEnd() {
+        if (zoomEndTimer != null) {
+            zoomEndTimer.stop();
+        }
+
+        zoomEndTimer = new javax.swing.Timer(50, evt -> {
+            zooming = false;
+
+            ZoomCommand command = new ZoomCommand(model, model.getScale());
+            command.setPrevScale(lastZoomBeforeScroll);
+            CommandManager.getInstance().executeCommand(command);
+
+            zoomEndTimer.stop();
+        });
+
+        zoomEndTimer.setRepeats(false);
+        zoomEndTimer.start();
     }
     
     // Implémentation MouseListener
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+
+    }
     @Override
     public void mousePressed(MouseEvent e) {
+        activeTranslateCommand = new TranslateCommand(model);
+        activeTranslateCommand.setPrevPosition(model.getPositionX(), model.getPositionY());
+
         lastX = e.getX();
         lastY = e.getY();
     }
-    
-    @Override
-    public void mouseClicked(MouseEvent e) {
-       
-    }
-    
+
+
+
     @Override
     public void mouseReleased(MouseEvent e) {
-        // Glisser-déposer : appliquer la translation finale
-        int deltaX = e.getX() - lastX;
-        int deltaY = e.getY() - lastY;
-        
-        if (deltaX != 0 || deltaY != 0) {
-            handleTranslate(deltaX, deltaY);
+        if (activeTranslateCommand != null) {
+            commandManager.executeCommand(activeTranslateCommand);
+            activeTranslateCommand = null;
         }
     }
-    
+
     @Override
     public void mouseEntered(MouseEvent e) {
-       
+
     }
-    
+
     @Override
     public void mouseExited(MouseEvent e) {
-        
+
     }
     
     // Implémentation MouseMotionListener
     @Override
-    public void mouseDragged(MouseEvent e) {
-        // Ne rien faire pendant le drag pour mode glisser-déposer
-        // (optionnel: on pourrait afficher un aperçu visuel ici)
-    }
-    
-    @Override
     public void mouseMoved(MouseEvent e) {
         // Rien à faire
     }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        int deltaX = e.getX() - lastX;
+        int deltaY = e.getY() - lastY;
+
+        int newX = model.getPositionX() + deltaX;
+        int newY = model.getPositionY() + deltaY;
+
+        model.setPosition(newX, newY);  //effet visuel immediat
+
+        activeTranslateCommand.setNewPosition(newX, newY); // État sauvegarder pour undo/redo
+
+        lastX = e.getX();
+        lastY = e.getY();
+    }
+    
+
     
     // Implémentation MouseWheelListener
     @Override
