@@ -10,6 +10,7 @@ public class LoadImageCommand implements Command {
     private ImageModel imageModel;
     private String imagePath;
     private String previousImagePath;
+    private String description;
     
     /**
      * Constructeur de la commande.
@@ -19,6 +20,7 @@ public class LoadImageCommand implements Command {
     public LoadImageCommand(ImageModel imageModel, String imagePath) {
         this.imageModel = imageModel;
         this.imagePath = imagePath;
+        this.description = "Charger image: " + imagePath;
     }
     
     @Override
@@ -36,5 +38,10 @@ public class LoadImageCommand implements Command {
         }
         // Note: Pour une implémentation complète, il faudrait gérer 
         // le cas où il n'y avait pas d'image précédente
+    }
+    
+    @Override
+    public String getDescription() {
+        return description;
     }
 }

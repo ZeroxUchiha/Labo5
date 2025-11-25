@@ -73,6 +73,12 @@ public class ImageViewerApp {
         perspectiveViews.add(perspView1);
         perspectiveViews.add(perspView2);
         
+        // Créer les contrôleurs pour gérer les interactions souris
+        PerspectiveController controller1 = new PerspectiveController(persp1, perspView1);
+        PerspectiveController controller2 = new PerspectiveController(persp2, perspView2);
+        controllers.add(controller1);
+        controllers.add(controller2);
+        
         centerPanel.add(perspView1);
         centerPanel.add(perspView2);
         

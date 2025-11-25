@@ -8,6 +8,8 @@ public class PerspectiveModel extends Observable implements Serializable {
     private double scale;        // Facteur de zoom
     private int translateX;      // Translation horizontale
     private int translateY;      // Translation verticale
+    private ImageModel imageModel;
+    private String perspectiveName;
     
     /**
      * Constructeur avec valeurs par défaut.
@@ -16,6 +18,18 @@ public class PerspectiveModel extends Observable implements Serializable {
         this.scale = 1.0;        // Zoom initial à 100%
         this.translateX = 0;     // Pas de translation
         this.translateY = 0;
+        this.perspectiveName = "Perspective";
+    }
+    
+    /**
+     * Constructeur avec nom et imageModel (selon diagramme).
+     */
+    public PerspectiveModel(String name, ImageModel imageModel) {
+        this.scale = 1.0;
+        this.translateX = 0;
+        this.translateY = 0;
+        this.perspectiveName = name;
+        this.imageModel = imageModel;
     }
     
     /**
@@ -25,6 +39,7 @@ public class PerspectiveModel extends Observable implements Serializable {
         this.scale = scale;
         this.translateX = translateX;
         this.translateY = translateY;
+        this.perspectiveName = "Perspective";
     }
     
     // Getters
@@ -94,5 +109,13 @@ public class PerspectiveModel extends Observable implements Serializable {
     public void setPosition(int x) {
         this.translateX = x;
         notifyObservers();
+    }
+    
+    public ImageModel getImageModel() {
+        return imageModel;
+    }
+    
+    public String getPerspectiveName() {
+        return perspectiveName;
     }
 }

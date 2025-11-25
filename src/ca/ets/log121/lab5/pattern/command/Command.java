@@ -15,4 +15,10 @@ public interface Command {
      * Annule la commande (undo).
      */
     void undo();
+    
+    /**
+     * Retourne la description de la commande.
+     * @return La description
+     */
+    String getDescription();
 }
