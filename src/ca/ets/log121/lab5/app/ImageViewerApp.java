@@ -173,7 +173,7 @@ public class ImageViewerApp {
             commandManager.executeCommand(command);
             // Les vues seront automatiquement mises à jour via le patron Observer ( vous pouvez regarder le diagramme de classes sur lucidchart )
             
-            // Activer les menus maintenant qu'une image est chargée
+            // Activer les menus maintenant qu'une image est chargée parce que ici j'ai vu dans la vidéo démonstrative que au début les autres menus étaient désactivés ce qui est logique
             miSave.setEnabled(true);
             miLoad.setEnabled(true);
             editMenu.setEnabled(true);
