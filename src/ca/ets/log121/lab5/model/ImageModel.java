@@ -1,3 +1,4 @@
+package ca.ets.log121.lab5.model;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -5,9 +6,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
+import ca.ets.log121.lab5.pattern.observer.Observable;
 
 public class ImageModel extends Observable implements Serializable {
-    private transient  BufferedImage image;
+    private transient BufferedImage image;
     private String imagePath;
 
     public ImageModel(){
@@ -43,4 +45,3 @@ public class ImageModel extends Observable implements Serializable {
         return imagePath;
     }
 }
-
