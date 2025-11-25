@@ -4,7 +4,13 @@ public class Observable {
     private ArrayList<Observer> observerList;
 
 
-    public void notifyObservers(){}
-    public void attach(Observer o){}
-    public void dettach(Observer o){}
+    public void notifyObservers(){
+
+    }
+    public void attach(Observer o){
+        observerList.add(o);
+    }
+    public void dettach(Observer o){
+        observerList.remove(o);
+    }
 }

@@ -43,8 +43,12 @@ public class ImageViewerApp {
 
         JPanel center = new JPanel();
         center.setBackground(Color.DARK_GRAY);
-
         mainFrame.add(center, BorderLayout.CENTER);
+
+        ThumbnailView thumbnail = new ThumbnailView(imageModel);
+        thumbnailViews.add(thumbnail);
+        mainFrame.add(thumbnail, BorderLayout.WEST);
+
         mainFrame.setVisible(true);
     }
 
@@ -95,11 +99,15 @@ public class ImageViewerApp {
 
     }
 
-    public void saveState(){}
+    public void saveState(){
+
+    }
 
     public void loadState(){}
 
-    public void createNewPerspective(){}
+    public void createNewPerspective(){
+
+    }
 
     public void exit(){}
 

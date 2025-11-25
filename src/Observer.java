@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 
-public class Observer {
+public interface Observer {
 
+    public void update();
 }

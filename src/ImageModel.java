@@ -30,4 +30,18 @@ public class ImageModel extends Observable implements Serializable {
         }
     }
 
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    public void reloadAfterDeserialization() {
+        if (imagePath != null) {
+            loadImage(imagePath);
+        }
+    }
+
+    public String getImagePath(){
+        return imagePath;
+    }
 }
+
