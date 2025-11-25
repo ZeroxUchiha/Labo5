@@ -5,6 +5,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// import depuis le packages que j'ai crée
+ 
 import ca.ets.log121.lab5.model.ImageModel;
 import ca.ets.log121.lab5.model.PerspectiveModel;
 import ca.ets.log121.lab5.view.ThumbnailView;
@@ -120,14 +122,29 @@ public class ImageViewerApp {
         editMenu.add(miUndo);
         editMenu.add(miRedo);
 
-        JMenu perspectiveMenu = new JMenu("Perspective");
-        JMenuItem miNewPersp = new JMenuItem("Nouvelle perspective");
-        miNewPersp.addActionListener(e -> createNewPerspective());
-        perspectiveMenu.add(miNewPersp);
+        // Menu Presse-Papier avec stratégies
+        JMenu clipboardMenu = new JMenu("Presse-Papier");
+        
+        JMenu copyMenu = new JMenu("Copier");
+        JMenuItem miCopyZoom = new JMenuItem("Copier Zoom");
+        JMenuItem miCopyTranslation = new JMenuItem("Copier Translation");
+        JMenuItem miCopyAll = new JMenuItem("Copier Tout");
+        miCopyZoom.addActionListener(e -> copyWithStrategy("zoom"));
+        miCopyTranslation.addActionListener(e -> copyWithStrategy("translation"));
+        miCopyAll.addActionListener(e -> copyWithStrategy("all"));
+        copyMenu.add(miCopyZoom);
+        copyMenu.add(miCopyTranslation);
+        copyMenu.add(miCopyAll);
+        
+        JMenuItem miPaste = new JMenuItem("Coller");
+        miPaste.addActionListener(e -> paste());
+        
+        clipboardMenu.add(copyMenu);
+        clipboardMenu.add(miPaste);
 
         menuBar.add(fileMenu);
         menuBar.add(editMenu);
-        menuBar.add(perspectiveMenu);
+        menuBar.add(clipboardMenu);
 
         mainFrame.setJMenuBar(menuBar);
     }
@@ -142,7 +159,7 @@ public class ImageViewerApp {
             String imagePath = chooser.getSelectedFile().getAbsolutePath();
             LoadImageCommand command = new LoadImageCommand(imageModel, imagePath);
             commandManager.executeCommand(command);
-            // Les vues seront automatiquement mises à jour via le patron Observer
+            // Les vues seront automatiquement mises à jour via le patron Observer ( vous pouvez regarder le diagramme de classes sur lucidchart )
         }
 
     }
@@ -250,6 +267,94 @@ public class ImageViewerApp {
         perspFrame.setSize(500, 500);
         perspFrame.add(newView);
         perspFrame.setVisible(true);
+    }
+
+    /**
+     * Copie une perspective avec une stratégie donnée.
+     */
+    public void copyWithStrategy(String strategyType) {
+        // Demander quelle perspective copier
+        String[] options = new String[perspectives.size()];
+        for (int i = 0; i < perspectives.size(); i++) {
+            options[i] = "Perspective " + (i + 1);
+        }
+        
+        String choice = (String) javax.swing.JOptionPane.showInputDialog(
+            mainFrame,
+            "Choisir la perspective à copier:",
+            "Copier",
+            javax.swing.JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]
+        );
+        
+        if (choice != null) {
+            int index = java.util.Arrays.asList(options).indexOf(choice);
+            PerspectiveModel source = perspectives.get(index);
+            
+            // Créer la stratégie appropriée
+            ca.ets.log121.lab5.pattern.strategy.CopyStrategy strategy;
+            switch (strategyType) {
+                case "zoom":
+                    strategy = new ca.ets.log121.lab5.pattern.strategy.CopyZoomStrategy();
+                    break;
+                case "translation":
+                    strategy = new ca.ets.log121.lab5.pattern.strategy.CopyTranslationStrategy();
+                    break;
+                case "all":
+                default:
+                    strategy = new ca.ets.log121.lab5.pattern.strategy.CopyAllStrategy();
+                    break;
+            }
+            
+            // Copier avec le mediator
+            ca.ets.log121.lab5.pattern.mediator.CopyPasteMediator.getInstance().copy(source, strategy);
+            javax.swing.JOptionPane.showMessageDialog(mainFrame, 
+                "Paramètres copiés!", 
+                "Copie", 
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    
+    /**
+     * Colle les paramètres copiés sur une perspective.
+     */
+    public void paste() {
+        if (!ca.ets.log121.lab5.pattern.mediator.CopyPasteMediator.getInstance().hasCopiedData()) {
+            javax.swing.JOptionPane.showMessageDialog(mainFrame, 
+                "Aucune donnée à coller!", 
+                "Erreur", 
+                javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        // Demander quelle perspective coller
+        String[] options = new String[perspectives.size()];
+        for (int i = 0; i < perspectives.size(); i++) {
+            options[i] = "Perspective " + (i + 1);
+        }
+        
+        String choice = (String) javax.swing.JOptionPane.showInputDialog(
+            mainFrame,
+            "Choisir la perspective destination:",
+            "Coller",
+            javax.swing.JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]
+        );
+        
+        if (choice != null) {
+            int index = java.util.Arrays.asList(options).indexOf(choice);
+            PerspectiveModel target = perspectives.get(index);
+            
+            ca.ets.log121.lab5.pattern.mediator.CopyPasteMediator.getInstance().paste(target);
+            javax.swing.JOptionPane.showMessageDialog(mainFrame, 
+                "Paramètres collés!", 
+                "Collage", 
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     /**

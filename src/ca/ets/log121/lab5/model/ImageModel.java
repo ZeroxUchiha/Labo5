@@ -38,7 +38,7 @@ public class ImageModel extends Observable implements Serializable {
             File file = new File(path);
             this.imageName = file.getName();
 
-            notifyObservers();   // Mise à jour des thumbnails
+            notifyObservers();   // Mise à jour des thumbnails view et autres observateurs
         } catch (IOException e) {
             e.printStackTrace();
         }
