@@ -15,7 +15,7 @@ public class PerspectiveModel extends Observable implements Serializable {
      * Constructeur avec valeurs par défaut.
      */
     public PerspectiveModel() {
-        this.scale = 1.0;        // Zoom initial à 100%
+        this.scale = 1.0;        // Zoom initial à 100% j
         this.translateX = 0;     // Pas de translation
         this.translateY = 0;
         this.perspectiveName = "Perspective";
