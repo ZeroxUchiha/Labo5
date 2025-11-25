@@ -77,27 +77,6 @@ java -cp src ImageViewerApp
 5. **Sauvegarder** : Menu Fichier → Sauvegarder
 6. **Annuler** : Menu Edition → Défaire
 
-## État du développement
-
-### ✅ Fonctionnel
-- Application démarre
-- Interface de base
-- Structure MVC
-
-### 🚧 En développement  
-- Pattern Observer complet
-- Gestion souris (zoom/translation)
-- Commandes annulables
-- Sérialisation
-
-### 📋 À implémenter
-- Fonctionnalités bonus
-- Tests unitaires
-- Documentation complète
-
-## Équipe
-- Développement en équipe (LOG121 - ÉTS)
-- Architecture collaborative avec patterns
 
 ---
 *Application développée dans le cadre du cours LOG121 - École de technologie supérieure*

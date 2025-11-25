@@ -8,10 +8,7 @@ import ca.ets.log121.lab5.model.ImageModel;
  */
 public class Serializer {
     
-    private String fileExtension;
-    
     public Serializer() {
-        this.fileExtension = ".dat";
     }
     
     /**

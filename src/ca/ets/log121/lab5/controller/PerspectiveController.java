@@ -13,7 +13,6 @@ import ca.ets.log121.lab5.pattern.command.TranslateCommand;
 public class PerspectiveController implements MouseListener, MouseMotionListener, MouseWheelListener {
     
     private PerspectiveModel model;
-    private PerspectiveView view;
     private CommandManager commandManager;
     
     // Pour le drag
@@ -22,7 +21,6 @@ public class PerspectiveController implements MouseListener, MouseMotionListener
     
     public PerspectiveController(PerspectiveModel model, PerspectiveView view) {
         this.model = model;
-        this.view = view;
         this.commandManager = CommandManager.getInstance();
         
         // Attacher les listeners à la vue
@@ -36,7 +34,7 @@ public class PerspectiveController implements MouseListener, MouseMotionListener
      */
     public void handleZoom(double factor) {
         double newScale = model.getScale() * factor;
-        // Limiter le zoom entre 0.1 et 10
+        // Limiter le zoom entre 0.1 et 10 || À voir la valeur à prendre 
         newScale = Math.max(0.1, Math.min(10.0, newScale));
         
         ZoomCommand command = new ZoomCommand(model, newScale);
@@ -72,22 +70,22 @@ public class PerspectiveController implements MouseListener, MouseMotionListener
     
     @Override
     public void mouseClicked(MouseEvent e) {
-        // Optionnel: gérer double-click pour reset, etc.
+       
     }
     
     @Override
     public void mouseReleased(MouseEvent e) {
-        // Rien à faire
+        
     }
     
     @Override
     public void mouseEntered(MouseEvent e) {
-        // Rien à faire
+       
     }
     
     @Override
     public void mouseExited(MouseEvent e) {
-        // Rien à faire
+        
     }
     
     // Implémentation MouseMotionListener

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // import depuis le packages que j'ai crée
- 
+
 import ca.ets.log121.lab5.model.ImageModel;
 import ca.ets.log121.lab5.model.PerspectiveModel;
 import ca.ets.log121.lab5.view.ThumbnailView;
@@ -58,15 +58,20 @@ public class ImageViewerApp {
         mainFrame.setSize(1200, 800);
         mainFrame.setLayout(new BorderLayout());
 
-        // Panneau central pour les perspectives
+        // Panneau central pour la vignette et les perspectives
         JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new GridLayout(1, 2, 10, 10));
+        centerPanel.setLayout(new GridLayout(1, 3, 10, 10));
         centerPanel.setBackground(Color.DARK_GRAY);
         centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
+        // Vignette à gauche
+        ThumbnailView thumbnail = new ThumbnailView(imageModel);
+        thumbnailViews.add(thumbnail);
+        centerPanel.add(thumbnail.getPanel());
+        
         // Créer 2 perspectives par défaut
-        PerspectiveModel persp1 = new PerspectiveModel();
-        PerspectiveModel persp2 = new PerspectiveModel();
+        PerspectiveModel persp1 = new PerspectiveModel("Perspective 1", imageModel);
+        PerspectiveModel persp2 = new PerspectiveModel("Perspective 2", imageModel);
         perspectives.add(persp1);
         perspectives.add(persp2);
         
@@ -81,15 +86,10 @@ public class ImageViewerApp {
         controllers.add(controller1);
         controllers.add(controller2);
         
-        centerPanel.add(perspView1);
-        centerPanel.add(perspView2);
+        centerPanel.add(perspView1.getPanel());
+        centerPanel.add(perspView2.getPanel());
         
         mainFrame.add(centerPanel, BorderLayout.CENTER);
-
-        // Vignette à gauche
-        ThumbnailView thumbnail = new ThumbnailView(imageModel);
-        thumbnailViews.add(thumbnail);
-        mainFrame.add(thumbnail, BorderLayout.WEST);
 
         mainFrame.setVisible(true);
     }
@@ -214,11 +214,16 @@ public class ImageViewerApp {
                 // Reconstruire l'interface
                 mainFrame.getContentPane().removeAll();
                 
-                // Panneau central pour les perspectives restaurées
+                // Panneau central pour la vignette et les perspectives restaurées  || grid 2 _3
                 JPanel centerPanel = new JPanel();
-                centerPanel.setLayout(new GridLayout(1, Math.min(perspectives.size(), 2), 10, 10));
+                centerPanel.setLayout(new GridLayout(1, 3, 10, 10));
                 centerPanel.setBackground(Color.DARK_GRAY);
                 centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                
+                // Vignette à gauche                                                || grid 1 
+                ThumbnailView thumbnail = new ThumbnailView(imageModel);
+                thumbnailViews.add(thumbnail);
+                centerPanel.add(thumbnail.getPanel());
                 
                 // Créer les vues et contrôleurs pour les perspectives restaurées
                 for (int i = 0; i < Math.min(perspectives.size(), 2); i++) {
@@ -228,15 +233,10 @@ public class ImageViewerApp {
                     
                     perspectiveViews.add(perspView);
                     controllers.add(controller);
-                    centerPanel.add(perspView);
+                    centerPanel.add(perspView.getPanel());
                 }
                 
                 mainFrame.add(centerPanel, BorderLayout.CENTER);
-                
-                // Vignette à gauche
-                ThumbnailView thumbnail = new ThumbnailView(imageModel);
-                thumbnailViews.add(thumbnail);
-                mainFrame.add(thumbnail, BorderLayout.WEST);
                 
                 mainFrame.revalidate();
                 mainFrame.repaint();
@@ -256,7 +256,7 @@ public class ImageViewerApp {
 
     public void createNewPerspective(){
         // Créer une nouvelle perspective
-        PerspectiveModel newPerspective = new PerspectiveModel();
+        PerspectiveModel newPerspective = new PerspectiveModel("Perspective " + (perspectives.size() + 1), imageModel);
         perspectives.add(newPerspective);
         
         PerspectiveView newView = new PerspectiveView(imageModel, newPerspective);
@@ -265,7 +265,7 @@ public class ImageViewerApp {
         // Créer une nouvelle fenêtre pour cette perspective
         JFrame perspFrame = new JFrame("Perspective " + perspectives.size());
         perspFrame.setSize(500, 500);
-        perspFrame.add(newView);
+        perspFrame.add(newView.getPanel());
         perspFrame.setVisible(true);
     }
 

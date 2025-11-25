@@ -91,7 +91,7 @@ public class PerspectiveModel extends Observable implements Serializable {
         notifyObservers();
     }
     
-    // Alias pour correspondre au diagramme de classes
+    
     public int getPositionX() {
         return translateX;
     }
