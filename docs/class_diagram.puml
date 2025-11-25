@@ -1,0 +1,283 @@
+@startuml ImageViewer Class Diagram
+
+!theme plain
+
+' Observer Pattern
+interface Observer {
+    + update(sujet: Observable)
+}
+
+class Observable {
+    - observerList: ArrayList<Observer>
+    + notifyObservers()
+    + attach(observer: Observer)
+    + dettach(observer: Observer)
+}
+
+' Core Model Classes  
+class ImageModel {
+    - image: BufferedImage
+    - imageName: String
+    - imagePath: String
+    + ImageModel(path: String)
+    + getImage(): BufferedImage
+    + getImageName(): String
+    + getImagePath(): String
+    + loadImage(path: String)
+    + setImage(img: BufferedImage)
+}
+
+class PerspectiveModel {
+    - scale: double
+    - positionX: int
+    - positionY: int
+    - imageModel: ImageModel
+    - perspectiveName: String
+    - copyMenu: JPopupMenu
+    + PerspectiveModel(name: String, imageModel: ImageModel)
+    + createPopupMenu(): void
+    + showPopup(e): void
+    + getScale(): double
+    + getPositionX(): int
+    + getPositionY(): int
+    + getImageModel(): ImageModel
+    + getPerspectiveName(): String
+    + setScale(s: double)
+    + setPosition(x: int, y: int)
+    + setPosition(x: int)
+    + setPosition(y: int)
+    + createMemento(): Memento
+    + restoreFromMemento(m: Memento)
+}
+
+' Memento Pattern
+class Memento {
+    - scale: double
+    - positionX: int
+    - positionY: int
+    + Memento(scale: double, positionX: int, positionY: int)
+    + getScale(): double
+    + getPositionX(): int
+    + getPositionY(): int
+}
+
+' Serializer
+class Serializer {
+    - fileExtension: String
+    + Serializer()
+    + save(state: ApplicationState, path: String): boolean
+    + load(path: String): ApplicationState
+    + saveImage(imageModel: ImageModel, path: String): boolean
+    + loadImage(path: String): ImageModel
+}
+
+' View Classes
+abstract class View {
+    - panel: JPanel
+    + update()
+    + paintComponent(g: Graphics)
+    + getPanel(): JPanel
+}
+
+class ThumbnailView {
+    - imageModel: ImageModel
+    - preferredSize: Dimension
+    + ThumbnailView(model: ImageModel)
+    + update()
+    + paintComponent(g: Graphics)
+    + getPanel(): JPanel
+}
+
+class MenuView {
+    - menuBar: JMenuBar
+    - fichierMenu: JMenu
+    - editionMenu: JMenu
+    - pressePapierMenu: JMenu
+    - sauvegarderPerspectiveItem: JMenuItem
+    - changerPerspectiveItem: JMenuItem
+    - chargerImageItem: JMenuItem
+    - quitterItem: JMenuItem
+    - defaireItem: JMenuItem
+    - refaireItem: JMenuItem
+    - choisirStrategieItem: JMenuItem
+    + MenuView()
+    + getPanel(): JPanel
+    + getMenuBar(): JMenuBar
+    + addActionListener(listener: ActionListener)
+    + setDefaireEnabled(enabled: boolean)
+    + setRefaireEnabled(enabled: boolean)
+    + actionPerformed(e: ActionEvent)
+}
+
+class PerspectiveView {
+    - perspectiveModel: PerspectiveModel
+    - mouseListener: MouseListener
+    - mouseMotionListener: MouseMotionListener
+    + PerspectiveView(model: PerspectiveModel)
+    + update()
+    + paintComponent(g: Graphics)
+    + getPanel(): JPanel
+    + addMouseListener(listener: MouseListener)
+    + addMouseMotionListener(listener: MouseMotionListener)
+}
+
+' Command Pattern
+interface Command {
+    + execute()
+    + undo()
+    + getDescription(): String
+}
+
+class LoadImageCommand {
+    - imageModel: ImageModel
+    - newImagePath: String
+    - prevImage: BufferedImage
+    - prevImagePath: String
+    - description: String
+    + LoadImageCommand(imageModel: ImageModel, imagePath: String)
+    + execute()
+    + undo()
+    + getDescription(): String
+}
+
+class ZoomCommand {
+    - perspective: PerspectiveModel
+    - newScale: double
+    - prevScale: double
+    - description: String
+    + ZoomCommand(perspective: PerspectiveModel, newScale: double)
+    + execute()
+    + undo()
+    + getDescription(): String
+}
+
+class TranslateCommand {
+    - perspective: PerspectiveModel
+    - newX: int
+    - newY: int
+    - prevX: int
+    - prevY: int
+    - description: String
+    + TranslateCommand(perspective: PerspectiveModel, newX: int, newY: int)
+    + execute()
+    + undo()
+    + getDescription(): String
+}
+
+class CommandManager {
+    - commands: Stack<Command>
+    - undoneCommands: Stack<Command>
+    - {static} instance: CommandManager
+    - maxHistorySize: int
+    - CommandManager()
+    + {static} getInstance(): CommandManager
+    + executeCommand(c: Command)
+    + undo(): boolean
+    + redo(): boolean
+    + canUndo(): boolean
+    + canRedo(): boolean
+    + getUndoDescription(): String
+    + getRedoDescription(): String
+    + clearHistory()
+}
+
+' Strategy Pattern  
+interface CopyStrategy {
+    + copy(source: PerspectiveModel, target: PerspectiveModel): void
+}
+
+class CopyZoomStrategy {
+    + copy(source: PerspectiveModel, target: PerspectiveModel): void
+}
+
+class CopyTranslationStrategy {
+    + copy(source: PerspectiveModel, target: PerspectiveModel): void
+}
+
+class CopyAllStrategy {
+    + copy(source: PerspectiveModel, target: PerspectiveModel): void
+}
+
+' Mediator Pattern
+class CopyPasteMediator {
+    - {static} instance: CopyPasteMediator
+    - copiedModel: PerspectiveModel
+    - copyStrategy: CopyStrategy
+    - CopyPasteMediator()
+    + getInstance(): CopyPasteMediator
+    + copy(model: PerspectiveModel, strategy: CopyStrategy): void
+    + paste(target: PerspectiveModel): void
+    + hasCopiedData(): boolean
+}
+
+' Controller
+class PerspectiveController {
+    - model: PerspectiveModel
+    - view: PerspectiveView
+    - commandManager: CommandManager
+    + PerspectiveController(model: PerspectiveModel, view: PerspectiveView)
+    + handleZoom(factor: double)
+    + handleTranslate(deltaX: int, deltaY: int)
+    + handleMouseWheel(e: MouseWheelEvent)
+    + handleMouseDrag(e: MouseEvent)
+    + handleMouseClick(e: MouseEvent)
+}
+
+' Main Application
+class ImageViewerApp {
+    - mainFrame: JFrame
+    - menuBar: JMenuBar
+    - imageModel: ImageModel
+    - perspectives: List<PerspectiveModel>
+    - serializer: Serializer
+    - thumbnailViews: List<ThumbnailView>
+    - perspectiveViews: List<PerspectiveView>
+    - controllers: List<PerspectiveController>
+    + ImageViewerApp()
+    + createMenuBar()
+    + createMainInterface()
+    + openImage()
+    + saveState()
+    + loadState()
+    + createNewPerspective()
+    + exit()
+    + main(args: String[])
+}
+
+' Inheritance relationships
+Observable <|-- ImageModel
+Observable <|-- PerspectiveModel
+Observer <|.. ThumbnailView
+Observer <|.. PerspectiveView
+View <|-- ThumbnailView
+View <|-- PerspectiveView
+Command <|.. LoadImageCommand
+Command <|.. ZoomCommand
+Command <|.. TranslateCommand
+CopyStrategy <|.. CopyZoomStrategy
+CopyStrategy <|.. CopyTranslationStrategy
+CopyStrategy <|.. CopyAllStrategy
+
+' Composition relationships
+ImageViewerApp *-- ImageModel
+ImageViewerApp *-- "0..*" PerspectiveModel
+ImageViewerApp *-- Serializer
+ImageViewerApp *-- "0..*" ThumbnailView
+ImageViewerApp *-- "0..*" PerspectiveView
+ImageViewerApp *-- "0..*" PerspectiveController
+PerspectiveModel *-- Memento
+CommandManager *-- "0..*" Command
+CopyPasteMediator *-- CopyStrategy
+
+' Association relationships
+ThumbnailView --> ImageModel
+PerspectiveView --> PerspectiveModel
+PerspectiveController --> PerspectiveModel
+PerspectiveController --> PerspectiveView
+PerspectiveController --> CommandManager
+CopyPasteMediator --> PerspectiveModel
+LoadImageCommand --> ImageModel
+ZoomCommand --> PerspectiveModel
+TranslateCommand --> PerspectiveModel
+
+@enduml
