@@ -107,4 +107,28 @@ public class PerspectiveView extends View implements Observer {
             panel.addMouseWheelListener(listener);
         }
     }
+
+    /**
+     * Crée et affiche un menu contextuel pour cette perspective.
+     * 
+     * @param copyAction action à exécuter pour copier
+     * @param pasteAction action à exécuter pour coller
+     */
+    public void setupContextMenu(Runnable copyAction, Runnable pasteAction) {
+        JPopupMenu contextMenu = new JPopupMenu();
+        
+        JMenuItem copyItem = new JMenuItem("Copier Tout");
+        copyItem.addActionListener(e -> copyAction.run());
+        
+        JMenuItem pasteItem = new JMenuItem("Coller");
+        pasteItem.addActionListener(e -> pasteAction.run());
+        
+        contextMenu.add(copyItem);
+        contextMenu.add(pasteItem);
+        
+        // Ajouter le menu contextuel au panel
+        if (panel != null) {
+            panel.setComponentPopupMenu(contextMenu);
+        }
+    }
 }

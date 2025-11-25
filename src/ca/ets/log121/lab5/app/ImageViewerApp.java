@@ -86,6 +86,10 @@ public class ImageViewerApp {
         controllers.add(controller1);
         controllers.add(controller2);
         
+        // Ajouter menus contextuels (clic droit) pour copier/coller les perspectives car également demandé dans l'énoncé
+        setupPerspectiveContextMenu(perspView1, persp1);
+        setupPerspectiveContextMenu(perspView2, persp2);
+        
         centerPanel.add(perspView1.getPanel());
         centerPanel.add(perspView2.getPanel());
         
@@ -249,6 +253,9 @@ public class ImageViewerApp {
                     PerspectiveView perspView = new PerspectiveView(imageModel, persp);
                     PerspectiveController controller = new PerspectiveController(persp, perspView);
                     
+                    // Ajouter menu contextuel
+                    setupPerspectiveContextMenu(perspView, persp);
+                    
                     perspectiveViews.add(perspView);
                     controllers.add(controller);
                     centerPanel.add(perspView.getPanel());
@@ -373,6 +380,31 @@ public class ImageViewerApp {
                 "Collage", 
                 javax.swing.JOptionPane.INFORMATION_MESSAGE);
         }
+    }
+
+    /**
+     * Configure le menu contextuel (clic droit) pour une perspective.
+     */
+    private void setupPerspectiveContextMenu(PerspectiveView view, PerspectiveModel model) {
+        view.setupContextMenu(
+            // Action pour copier
+            () -> {
+                ca.ets.log121.lab5.pattern.strategy.CopyStrategy strategy = 
+                    new ca.ets.log121.lab5.pattern.strategy.CopyAllStrategy();
+                ca.ets.log121.lab5.pattern.mediator.CopyPasteMediator.getInstance().copy(model, strategy);
+            },
+            // Action pour coller
+            () -> {
+                if (ca.ets.log121.lab5.pattern.mediator.CopyPasteMediator.getInstance().hasCopiedData()) {
+                    ca.ets.log121.lab5.pattern.mediator.CopyPasteMediator.getInstance().paste(model);
+                } else {
+                    javax.swing.JOptionPane.showMessageDialog(mainFrame, 
+                        "Aucune donnée à coller!", 
+                        "Erreur", 
+                        javax.swing.JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        );
     }
 
     /**
