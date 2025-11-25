@@ -87,4 +87,26 @@ public class CommandManager {
         commandHistory.clear();
         undoHistory.clear();
     }
+    
+    /**
+     * Retourne la description de la commande qui sera annulée.
+     * @return La description ou null si aucune commande à annuler
+     */
+    public String getUndoDescription() {
+        if (!commandHistory.isEmpty()) {
+            return commandHistory.peek().getDescription();
+        }
+        return null;
+    }
+    
+    /**
+     * Retourne la description de la commande qui sera refaite.
+     * @return La description ou null si aucune commande à refaire
+     */
+    public String getRedoDescription() {
+        if (!undoHistory.isEmpty()) {
+            return undoHistory.peek().getDescription();
+        }
+        return null;
+    }
 }

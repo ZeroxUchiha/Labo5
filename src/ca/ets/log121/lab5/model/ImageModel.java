@@ -11,10 +11,19 @@ import ca.ets.log121.lab5.pattern.observer.Observable;
 public class ImageModel extends Observable implements Serializable {
     private transient BufferedImage image;
     private String imagePath;
+    private String imageName;
 
     public ImageModel(){
         this.image = null;
         this.imagePath = null;
+        this.imageName = null;
+    }
+    
+    /**
+     * Constructeur avec chemin d'image.
+     */
+    public ImageModel(String path) {
+        loadImage(path);
     }
 
     /**
@@ -24,6 +33,10 @@ public class ImageModel extends Observable implements Serializable {
         try {
             this.image = ImageIO.read(new File(path));
             this.imagePath = path;
+            
+            // Extraire le nom du fichier
+            File file = new File(path);
+            this.imageName = file.getName();
 
             notifyObservers();   // Mise à jour des thumbnails
         } catch (IOException e) {
@@ -43,5 +56,17 @@ public class ImageModel extends Observable implements Serializable {
 
     public String getImagePath(){
         return imagePath;
+    }
+    
+    public String getImageName() {
+        return imageName;
+    }
+    
+    /**
+     * Définit l'image directement.
+     */
+    public void setImage(BufferedImage img) {
+        this.image = img;
+        notifyObservers();
     }
 }

@@ -148,10 +148,94 @@ public class ImageViewerApp {
     }
 
     public void saveState(){
-
+        javax.swing.JFileChooser chooser = new javax.swing.JFileChooser();
+        chooser.setDialogTitle("Sauvegarder l'état");
+        
+        if (chooser.showSaveDialog(mainFrame) == javax.swing.JFileChooser.APPROVE_OPTION) {
+            String path = chooser.getSelectedFile().getAbsolutePath();
+            if (!path.endsWith(".dat")) {
+                path += ".dat";
+            }
+            
+            ca.ets.log121.lab5.util.ApplicationState state = 
+                new ca.ets.log121.lab5.util.ApplicationState(imageModel, perspectives);
+            
+            if (serializer.save(state, path)) {
+                javax.swing.JOptionPane.showMessageDialog(mainFrame, 
+                    "État sauvegardé avec succès!", 
+                    "Succès", 
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(mainFrame, 
+                    "Erreur lors de la sauvegarde", 
+                    "Erreur", 
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
-    public void loadState(){}
+    public void loadState(){
+        javax.swing.JFileChooser chooser = new javax.swing.JFileChooser();
+        chooser.setDialogTitle("Charger un état");
+        
+        if (chooser.showOpenDialog(mainFrame) == javax.swing.JFileChooser.APPROVE_OPTION) {
+            String path = chooser.getSelectedFile().getAbsolutePath();
+            
+            ca.ets.log121.lab5.util.ApplicationState state = serializer.load(path);
+            
+            if (state != null) {
+                // Nettoyer l'état actuel
+                thumbnailViews.clear();
+                perspectiveViews.clear();
+                controllers.clear();
+                
+                // Restaurer l'imageModel et les perspectives
+                this.imageModel = state.getImageModel();
+                this.perspectives.clear();
+                this.perspectives.addAll(state.getPerspectives());
+                
+                // Reconstruire l'interface
+                mainFrame.getContentPane().removeAll();
+                
+                // Panneau central pour les perspectives restaurées
+                JPanel centerPanel = new JPanel();
+                centerPanel.setLayout(new GridLayout(1, Math.min(perspectives.size(), 2), 10, 10));
+                centerPanel.setBackground(Color.DARK_GRAY);
+                centerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+                
+                // Créer les vues et contrôleurs pour les perspectives restaurées
+                for (int i = 0; i < Math.min(perspectives.size(), 2); i++) {
+                    PerspectiveModel persp = perspectives.get(i);
+                    PerspectiveView perspView = new PerspectiveView(imageModel, persp);
+                    PerspectiveController controller = new PerspectiveController(persp, perspView);
+                    
+                    perspectiveViews.add(perspView);
+                    controllers.add(controller);
+                    centerPanel.add(perspView);
+                }
+                
+                mainFrame.add(centerPanel, BorderLayout.CENTER);
+                
+                // Vignette à gauche
+                ThumbnailView thumbnail = new ThumbnailView(imageModel);
+                thumbnailViews.add(thumbnail);
+                mainFrame.add(thumbnail, BorderLayout.WEST);
+                
+                mainFrame.revalidate();
+                mainFrame.repaint();
+                
+                javax.swing.JOptionPane.showMessageDialog(mainFrame, 
+                    "État chargé avec succès!", 
+                    "Succès", 
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(mainFrame, 
+                    "Erreur lors du chargement", 
+                    "Erreur", 
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
 
     public void createNewPerspective(){
         // Créer une nouvelle perspective
@@ -182,7 +266,21 @@ public class ImageViewerApp {
         commandManager.redo();
     }
 
-    public void exit(){}
+    public void exit(){
+        int response = javax.swing.JOptionPane.showConfirmDialog(mainFrame,
+            "Voulez-vous sauvegarder avant de quitter?",
+            "Quitter",
+            javax.swing.JOptionPane.YES_NO_CANCEL_OPTION,
+            javax.swing.JOptionPane.QUESTION_MESSAGE);
+        
+        if (response == javax.swing.JOptionPane.YES_OPTION) {
+            saveState();
+            System.exit(0);
+        } else if (response == javax.swing.JOptionPane.NO_OPTION) {
+            System.exit(0);
+        }
+        // Si CANCEL, ne rien faire
+    }
 
 
     public static void main(String[] args) {
